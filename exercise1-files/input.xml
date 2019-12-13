@@ -1,0 +1,16 @@
+<transactions>
+    <transaction>
+        <account>4242424242424242</account>
+        <amount>150.00</amount>
+        <reference>ec8849ff-927e-4783-aa84-fa120666c8ab</reference>
+        <card-name>card-1</card-name>
+        <card-type>TDC</card-type>
+    </transaction>
+    <transaction>
+        <account>5542424242424242</account>
+        <amount>110.00</amount>
+        <reference>b0e20f25-3d97-49f9-9e34-8b40c7589505</reference>
+        <card-name>card-1</card-name>
+        <card-type>TDC</card-type>
+    </transaction>
+</transactions>

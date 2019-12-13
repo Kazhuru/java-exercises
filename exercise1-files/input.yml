@@ -1,0 +1,12 @@
+transactions:
+  - account: "4242424242424242"
+    amount: 150.00
+    reference: "ec8849ff-927e-4783-aa84-fa120666c8ab"
+    card-name: "card-1"
+    card-type: "TDC"
+  - account: "5242424242424242"
+    amount: 170.00
+    reference: "32217b60-866e-4495-bd3c-4bcc37ab831e"
+    card-name: "card-1"
+    card-type: "TDC"
+
