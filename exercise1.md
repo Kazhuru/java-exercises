@@ -1,12 +1,12 @@
-Given a [json file](exercise1-files/input.json), an [xml](exercise1-files/input.xml) file, 
-a [csv file](exercise1-files/input.csv) and a [yml file](exercise1-files/input.yml) all of them with fields:
+Given a [json file](exercise1/exercise1-files/input.json), an [xml](exercise1/exercise1-files/input.xml) file, 
+a [csv file](exercise1/exercise1-files/input.csv) and a [yml file](exercise1/exercise1-files/input.yml) all of them with fields:
 - account
 - amount
 - reference
 - card name
 - card type
 
-It is required to know which transactions exists and which not in [other file](exercise1-files/target.out) 
+It is required to know which transactions exists and which not in [other file](exercise1/exercise1-files/target.out) 
 with custom format (same fields with a pipe as separator). The response must be written to an HTML report
 
 SOLUTION:
