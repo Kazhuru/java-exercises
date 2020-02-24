@@ -1,9 +1,7 @@
 package service;
 
-import models.Transactions;
-
-import java.util.Map;
+import models.MismatchedTransactions;
 
 public interface DisplayData {
-    void displayTransactionsReport(Map<String, Transactions> transactionsMap);
+    void displayTransactionsReport(MismatchedTransactions transactionsMap);
 }

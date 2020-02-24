@@ -1,10 +1,8 @@
 package service;
 
-import models.Process;
-import models.Transactions;
-
-import java.util.Map;
+import models.MismatchedTransactions;
+import models.TransactionProcess;
 
 public interface TransactionsComparator {
-    Map<String, Transactions> getTransactionsDifferences(Process process);
+    MismatchedTransactions getMismatchedTransactions(TransactionProcess transactionProcess);
 }

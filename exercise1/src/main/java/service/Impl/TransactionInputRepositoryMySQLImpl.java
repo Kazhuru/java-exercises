@@ -1,41 +1,25 @@
 package service.Impl;
 
-import models.Process;
 import models.Transaction;
+import models.TransactionProcess;
+import models.Transactions;
 import service.TransactionRepository;
+import service.TransactionRepositoryMySQL;
 
-import java.io.FileReader;
-import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Properties;
 
-public class TransactionInputRepositoryMySQLImpl implements TransactionRepository {
-    private Connection connection;
-
-    public TransactionInputRepositoryMySQLImpl() {
-        try {
-            Properties properties = new Properties();
-            properties.load(new FileReader("exercise1/src/main/resources/database.properties"));
-            Class.forName(properties.getProperty("driver"));
-            this.connection = DriverManager.getConnection(
-                    properties.getProperty("url"), properties.getProperty("user"), properties.getProperty("password"));
-
-        } catch (ClassNotFoundException | SQLException | IOException e) {
-            e.printStackTrace();
-        }
-    }
+public class TransactionInputRepositoryMySQLImpl
+        extends TransactionRepositoryMySQL
+        implements TransactionRepository {
 
     @Override
-    public void saveTransactions(List<Transaction> transactions, Process process) {
-        String storedProcedure = "{CALL insert_input_transaction(?,?,?,?,?,?)}";
-        CallableStatement callableStatement;
-
-        for (Transaction transaction : transactions) {
-            try {
+    public void saveTransactions(Transactions transactions, TransactionProcess process) {
+        try (Connection connection = super.openConnection()) {
+            String storedProcedure = "{CALL insert_input_transaction(?,?,?,?,?,?)}";
+            CallableStatement callableStatement;
+            for (Transaction transaction : transactions.getTransactions()) {
                 callableStatement = connection.prepareCall(storedProcedure);
                 callableStatement.setLong("in_account", transaction.getAccount());
                 callableStatement.setDouble("in_amount", transaction.getAmount());
@@ -45,9 +29,9 @@ public class TransactionInputRepositoryMySQLImpl implements TransactionRepositor
                 callableStatement.setInt("in_processid", process.getId());
 
                 callableStatement.executeQuery();
-            } catch (SQLException e) {
-                e.printStackTrace();
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }

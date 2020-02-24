@@ -1,78 +1,73 @@
-import models.Process;
+import models.MismatchedTransactions;
+import models.TransactionProcess;
 import models.Transactions;
-import service.*;
+import service.DisplayData;
 import service.Impl.*;
+import service.TransactionFileReader;
+import service.TransactionRepository;
+import service.TransactionsComparator;
 
 import java.util.Map;
 
 public class ExerciseHandler {
-    String[] inputFiles;
-    String targetFile;
-    Process currentProcess;
-    FileReader fileReader;
-    TransactionRepository transactionInputRepository;
-    TransactionRepository transactionTargetRepository;
-    TransactionsComparator transactionsComparator;
-    ProcessRepository processRepository;
-    DisplayData displayData;
+    private Map<String, TransactionFileReader> fileReaderMap;
 
-    public ExerciseHandler(String[] inputFiles, String targetFile, String user) {
-        this.inputFiles = inputFiles;
-        this.targetFile = targetFile;
-        this.processRepository = new ProcessRepositoryMySQLImpl();
-        this.currentProcess = processRepository.saveProcess(user);
-        this.transactionInputRepository = new TransactionInputRepositoryMySQLImpl();
-        this.transactionTargetRepository = new TransactionTargetRepositoryMySQLImpl();
-        this.transactionsComparator = new TransactionsComparatorMySQLImpl();
-        this.displayData = new DisplayDataHTMLImpl();
+    public ExerciseHandler(Map<String, TransactionFileReader> fileReaderMap) {
+        this.fileReaderMap = fileReaderMap;
     }
 
-    public void executeProcess() {
-        loadAllInputFiles();
-        loadTargetFile();
-        printResult(compareTransactions());
+    public void executeProcess(String[] inputFiles, String targetFile, String user) {
+        TransactionProcess process = new ProcessRepositoryMySQLImpl().saveProcess(user);
+
+        loadAllInputFiles(process, new TransactionInputRepositoryMySQLImpl(), inputFiles);
+
+        loadTargetFile(process, new TransactionTargetRepositoryMySQLImpl(), targetFile);
+
+        MismatchedTransactions mismatchedTransactions =
+                getMismatchedTransactions(process, new TransactionsComparatorMySQLImpl());
+
+        printResult(mismatchedTransactions, new DisplayDataHTMLImpl());
     }
 
-    private void loadAllInputFiles() {
+    private void loadAllInputFiles(TransactionProcess process,
+                                   TransactionRepository repository,
+                                   String[] inputFiles) {
         for (String file : inputFiles) {
             String[] fileParts = file.split("\\.");
             String fileType = fileParts[fileParts.length - 1];
-            String path = "exercise1/exercise1-files/".concat(file);
-            switch (fileType) {
-                case "csv":
-                    fileReader = new FileReaderCSVImpl();
-                    transactionInputRepository.saveTransactions(fileReader.getTransactions(path), currentProcess);
-                    break;
-                case "json":
-                    fileReader = new FileReaderJSONImpl();
-                    transactionInputRepository.saveTransactions(fileReader.getTransactions(path), currentProcess);
-                    break;
-                case "xml":
-                    fileReader = new FileReaderXMLImpl();
-                    transactionInputRepository.saveTransactions(fileReader.getTransactions(path), currentProcess);
-                    break;
-                case "yml":
-                case "yaml":
-                    fileReader = new FileReaderYMLImpl();
-                    transactionInputRepository.saveTransactions(fileReader.getTransactions(path), currentProcess);
-                    break;
-                default:
-                    System.out.println("unsupported operation for: ".concat(fileType).concat(" files."));
+
+            if (fileReaderMap.containsKey(fileType)) {
+                TransactionFileReader transactionFileReader = fileReaderMap.get(fileType);
+                Transactions transactions = transactionFileReader.getTransactions(file);
+                repository.saveTransactions(transactions, process);
+            } else {
+                System.out.println("Target file not defined!");
             }
         }
     }
 
-    private void loadTargetFile() {
-        fileReader = new FileReaderOUTImpl();
-        String path = "exercise1/exercise1-files/".concat(targetFile);
-        transactionTargetRepository.saveTransactions(fileReader.getTransactions(path), currentProcess);
+    private void loadTargetFile(TransactionProcess process,
+                                TransactionRepository repository,
+                                String targetFile) {
+        String[] fileParts = targetFile.split("\\.");
+        String fileType = fileParts[fileParts.length - 1];
+
+        if (fileReaderMap.containsKey(fileType)) {
+            TransactionFileReader transactionFileReader = fileReaderMap.get(fileType);
+            Transactions transactions = transactionFileReader.getTransactions(targetFile);
+            repository.saveTransactions(transactions, process);
+        } else {
+            System.out.println("Target file not defined!");
+        }
     }
 
-    private Map<String, Transactions> compareTransactions() {
-        return transactionsComparator.getTransactionsDifferences(currentProcess);
+    private MismatchedTransactions getMismatchedTransactions(TransactionProcess process,
+                                                             TransactionsComparator comparator) {
+        return comparator.getMismatchedTransactions(process);
     }
 
-    private void printResult(Map<String, Transactions> transactionsMap) {
-        displayData.displayTransactionsReport(transactionsMap);
+    private void printResult(MismatchedTransactions mismatchedTransactions,
+                             DisplayData displayData) {
+        displayData.displayTransactionsReport(mismatchedTransactions);
     }
 }

@@ -18,7 +18,6 @@ import java.io.Serializable;
 @XmlRootElement(name = "transaction")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Transaction implements Serializable {
-
     @XmlElement(name = "account")
     private long account;
 

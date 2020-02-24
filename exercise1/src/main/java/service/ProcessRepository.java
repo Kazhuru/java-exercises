@@ -1,5 +1,7 @@
 package service;
 
+import models.TransactionProcess;
+
 public interface ProcessRepository {
-    models.Process saveProcess(String name);
+    TransactionProcess saveProcess(String name);
 }

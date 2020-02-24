@@ -1,45 +1,38 @@
 package service.Impl;
 
-import models.Process;
+import models.TransactionProcess;
 import service.ProcessRepository;
+import service.TransactionRepositoryMySQL;
 
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.*;
 import java.util.Properties;
 
-public class ProcessRepositoryMySQLImpl implements ProcessRepository {
-    private Connection connection;
-
-    public ProcessRepositoryMySQLImpl() {
-        try {
-            Properties properties = new Properties();
-            properties.load(new FileReader("exercise1/src/main/resources/database.properties"));
-            Class.forName(properties.getProperty("driver"));
-            this.connection = DriverManager.getConnection(
-                    properties.getProperty("url"), properties.getProperty("user"), properties.getProperty("password"));
-
-        } catch (ClassNotFoundException | SQLException | IOException e) {
-            e.printStackTrace();
-        }
-    }
+public class ProcessRepositoryMySQLImpl
+        extends TransactionRepositoryMySQL
+        implements ProcessRepository {
 
     @Override
-    public Process saveProcess(String name) {
-        String saveProcessProcedure = "{CALL insert_process(?)}";
-        CallableStatement callableStatement;
-        ResultSet resultset;
-        int id = Integer.MIN_VALUE;
+    public TransactionProcess saveProcess(String name) {
+        TransactionProcess process = new TransactionProcess();
 
-        try {
-            callableStatement = connection.prepareCall(saveProcessProcedure);
+        try (Connection connection = super.openConnection()) {
+            ResultSet resultset;
+            CallableStatement callableStatement;
+            String storedProcedure = "{CALL insert_process(?)}";
+
+            callableStatement = connection.prepareCall(storedProcedure);
             callableStatement.setString("in_name", name);
             resultset = callableStatement.executeQuery();
             resultset.next();
-            id = Integer.parseInt(resultset.getString("lastId"));
+
+            process.setId(Integer.parseInt(resultset.getString("lastId")));
+            process.setUser(name);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return new Process(id, name);
+
+        return process;
     }
 }

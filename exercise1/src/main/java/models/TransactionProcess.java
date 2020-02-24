@@ -8,10 +8,8 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Process {
-
+public class TransactionProcess {
     private int id;
 
     private String user;
-
 }

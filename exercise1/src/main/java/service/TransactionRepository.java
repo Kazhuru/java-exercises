@@ -1,12 +1,10 @@
 package service;
 
-import models.Process;
-import models.Transaction;
-
-import java.util.List;
+import models.TransactionProcess;
+import models.Transactions;
 
 public interface TransactionRepository {
 
-    void saveTransactions(List<Transaction> transactions, Process process);
+    void saveTransactions(Transactions transactions, TransactionProcess transactionProcess);
 
 }
